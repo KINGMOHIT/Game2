@@ -22,7 +22,7 @@ const ctx = canvas.getContext("2d", { alpha: false });
 // Sets the sizes to inner window sizes
 const cnvsWidth = window.innerWidth;
 // -4 removes the overflow scrollbar
-const cnvsHeight = window.innerHeight - 4;
+const cnvsHeight = window.innerHeight;
 // Sets dimensions to these variables
 ctx.canvas.width = cnvsWidth;
 ctx.canvas.height = cnvsHeight;
@@ -64,6 +64,8 @@ if (cnvsWidth < 360) {
   var numberOfSprites = 10;
   var speed = 10;
 }
+var background = new Image();
+background.src = "assets/back.jpg";
 
 // -- Class Definitions --
 
@@ -130,7 +132,13 @@ class Star {
       ctx.fillStyle = "#704cf0";
     }
     ctx.arc(xPos, yPos, s, 0, Math.PI * 2);
+    // ctx.fill();
+
+    ctx.shadowBlur = 5;
+    ctx.shadowColor = '#fff';
     ctx.fill();
+
+    ctx.restore();
   }
 }
 
@@ -248,19 +256,22 @@ function toggleMute() {
 }
 
 // Clears canvas then draws Star objects when called each frame within update()
-function drawStars() {
+function drawStars(bg = background) {
   if (!endGame) {
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, cnvsWidth, cnvsHeight);
+    ctx.clearRect(0, 0, cnvsWidth, cnvsHeight);
+    ctx.drawImage(bg, 0, 0, cnvsWidth, cnvsHeight);
   } else {
-    // Creates trail and spins canvas on end game screens
-    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-    ctx.fillRect(-1000, -1000, canvas.width + 3000, canvas.height + 3000);
-    ctx.translate(centreOfX, centreOfY);
-    ctx.rotate(Math.PI * -0.0009);
-    ctx.translate(-centreOfX, -centreOfY);
-  }
+    ctx.clearRect(0, 0, cnvsWidth, cnvsHeight);
+    ctx.drawImage(bg, 0, 0, cnvsWidth, cnvsHeight);
 
+    // Creates trail and spins canvas on end game screens
+    // ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+    // ctx.fillRect(-1000, -1000, canvas.width + 3000, canvas.height + 3000);
+
+    // ctx.translate(centreOfX, centreOfY);
+    // ctx.rotate(Math.PI * -0.0009);
+    // ctx.translate(-centreOfX, -centreOfY);
+  }
   // Calls methods on Star objects array each frame
   for (var i = 0; i < numberOfStars; i++) {
     starsArray[i].showStar(); // Updates the z value
@@ -351,7 +362,7 @@ function moveLeft() {
     if (angle > 360) {
       angle = 0;
     }
-  }, 10);
+  }, 6);
 }
 
 // Move right functionality
@@ -363,7 +374,7 @@ function moveRight() {
     if (angle < -360) {
       angle = 0;
     }
-  }, 10);
+  }, 6);
 }
 
 // Stops movement when user stops touching screen
@@ -633,8 +644,12 @@ for (var i = 0; i < numberOfStars; i++) {
   );
 }
 
+background.onload = function () {
+  drawStars(background);
+}
+
 // Calls function once to initially allow one frame of stars to be rendered before game starts so that they are visible behind the start panel
-drawStars();
+
 
 // Called when Start Game button is pressed - Starts game rendering Sprite objects and triggering main loop
 function initialiseGame() {
